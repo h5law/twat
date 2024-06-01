@@ -1,0 +1,24 @@
+[package]
+name = "twat"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Harry Law (h5law) <dev@h5law.com>" ]
+
+homepage = "https://github.com/h5law/twat"
+repository = "https://github.com/h5law/twat"
+documentation = "https://docs.rs/twat"
+description = "A simple git-like VCS"
+
+license-file = "LICENSE"
+readme = "README.md"
+
+keywords = [ "vcs", "version-control", "git" ]
+categories = [ "command-line-tools" ]
+
+[[bin]]
+name = "twat"
+test = true
+
+[dependencies]
+anyhow = "1.0.86"
+clap = { version = "4.5.4", features = ["derive"] }
