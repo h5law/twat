@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 use std::{
-    fs::{metadata, set_permissions, DirBuilder, File},
+    fs::{metadata, DirBuilder, File},
     io::Write,
-    os::unix::fs::PermissionsExt,
     path::Path,
 };
 
 use anyhow::{anyhow, Context, Result};
+
+use crate::utils::utils::set_path_755;
 
 pub fn init_repo() -> Result<()> {
     if Path::new(".twat/").exists() {
@@ -19,56 +20,31 @@ pub fn init_repo() -> Result<()> {
         .recursive(true)
         .create(path)
         .context("[twat]: unable to create object references directory")?;
-    let mut perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
     path = Path::new(".twat/objects/info");
     DirBuilder::new()
         .recursive(true)
         .create(path)
         .context("[twat]: unable to create object info directory")?;
-    perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
     path = Path::new(".twat/objects/pack");
     DirBuilder::new()
         .recursive(true)
         .create(path)
         .context("[twat]: unable to create object pack directory")?;
-    perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
     path = Path::new(".twat/refs/heads");
     DirBuilder::new()
         .recursive(true)
         .create(path)
         .context("[twat]: unable to create references head directory")?;
-    perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
     path = Path::new(".twat/refs/tags");
     DirBuilder::new()
         .recursive(true)
         .create(path)
         .context("[twat]: unable to create references tags directory")?;
-    perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
     path = Path::new(".twat/");
     assert!(metadata(path).unwrap().is_dir());
 
@@ -77,12 +53,7 @@ pub fn init_repo() -> Result<()> {
         File::create(path).context("[twat]: unable to open HEAD file")?;
     head.write_all(b"refs/head/main")
         .context("[twat]: unable to write to HEAD file")?;
-    perms = metadata(path)
-        .context(format!("unable to get permissions for path {:?}", path))?
-        .permissions();
-    perms.set_mode(0o755);
-    set_permissions(path, perms)
-        .context("[twat]: unable to set directory permissions")?;
+    set_path_755(&path)?;
 
     return Ok(());
 }

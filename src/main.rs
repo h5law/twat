@@ -4,6 +4,7 @@ mod cat;
 mod cli;
 mod hash;
 mod init;
+mod utils;
 
 use clap::Parser;
 

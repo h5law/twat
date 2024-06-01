@@ -8,28 +8,25 @@ use std::{
 };
 
 use anyhow::{anyhow, Context, Ok, Result};
-use flate2::bufread::ZlibDecoder;
+
+use crate::utils::utils::{decompress_vector, hash_to_object_path};
 
 pub fn cat_file(hash: String, pretty: bool) -> Result<()> {
-    let dir_path = format!(
-        ".twat/objects/{}{}",
-        hash.chars().nth(0).unwrap(),
-        hash.chars().nth(1).unwrap(),
-    );
-    if !Path::new(&dir_path).exists() {
+    if !Path::new(".twat/").exists() {
+        return Err(anyhow!("[twat]: .twat repository doesn't exists"));
+    }
+
+    let file_path = hash_to_object_path(&hash);
+    if !Path::new(&file_path)
+        .parent()
+        .context("[twat]: error getting parent directory for file")?
+        .exists()
+    {
         return Err(anyhow!(
             "[twat]: invalid blob provided, object not in store"
         ));
     }
 
-    let mut file_path_str = String::new();
-    for (i, char) in hash.chars().enumerate() {
-        if i < 2 {
-            continue;
-        }
-        file_path_str += &char.to_string();
-    }
-    let file_path = format!("{}/{}", dir_path, file_path_str);
     let path = Path::new(&file_path);
     let mut file =
         File::open(path).context("[twat] unable to open object file")?;
@@ -37,22 +34,17 @@ pub fn cat_file(hash: String, pretty: bool) -> Result<()> {
     let mut buf: Vec<u8> = vec![0; md.size() as usize];
     file.read(&mut buf).context("[twat]: unable to read file")?;
 
-    let c: &[u8] = &buf;
-    let mut d = ZlibDecoder::new(c);
-    let mut u: Vec<u8> = Vec::new();
-    d.read_to_end(&mut u)
-        .context("[twat]: unable to get final compressed bytes")?;
-
+    let u = decompress_vector(&buf)?;
     let idx: Option<usize>;
     let uncompressed = String::from_utf8(u.clone())
         .context("[twat]: unable to convert decompressed blob to string")?;
-    idx = uncompressed.find("\\0");
+    idx = uncompressed.find("\0");
     if idx.is_none() {
         return Err(anyhow!("[twat]: invalid blob file format"));
     }
     let left: &[u8];
     let right: &[u8];
-    (left, right) = u.split_at(idx.unwrap() + 2);
+    (left, right) = u.split_at(idx.unwrap() + 1);
 
     let blob_arr: &[u8];
     let size_arr: &[u8];
@@ -68,7 +60,7 @@ pub fn cat_file(hash: String, pretty: bool) -> Result<()> {
     }
 
     let size_str: &str;
-    (size_str, _) = size_str_ended.split_at(size_str_ended.len() - 2);
+    (size_str, _) = size_str_ended.split_at(size_str_ended.len() - 1);
     let size: usize = size_str
         .parse()
         .context("[twat]: unable to parse file size")?;
