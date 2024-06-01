@@ -19,7 +19,7 @@ pub enum Commands {
     HashFile {
         /// The file name of the file to hash
         #[arg(short, long, value_name = "FILENAME", required = true)]
-        filename: Option<String>,
+        filename: String,
 
         /// Write the contents of the file to the object store
         #[arg(short, long)]
@@ -30,7 +30,7 @@ pub enum Commands {
     CatBlob {
         /// The BLAKE2b hash of the object to be printed
         #[arg(short, long, value_name = "BLOB_HASH", required = true)]
-        blob: Option<String>,
+        blob: String,
 
         /// Pretty print the contents of the object file
         #[arg(short, long)]

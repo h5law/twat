@@ -21,4 +21,8 @@ test = true
 
 [dependencies]
 anyhow = "1.0.86"
+blake2 = "0.10.6"
 clap = { version = "4.5.4", features = ["derive"] }
+flate2 = "1.0.30"
+hex = "0.4.3"
+unicode-segmentation = "1.11.0"
