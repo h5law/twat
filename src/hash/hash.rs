@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use blake2::{
     digest::{Update, VariableOutput},
     Blake2bVar,

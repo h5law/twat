@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
+mod cat;
 mod cli;
 mod hash;
 mod init;
 
 use clap::Parser;
 
+use cat::cat::cat_file;
 use cli::cli::{Cli, Commands};
 use hash::hash::hash_file;
 use init::init::init_repo;
@@ -27,7 +29,10 @@ fn main() {
             }
         }
         Commands::CatBlob { blob, pretty } => {
-            println!("cat-blob: {pretty} {:?}", blob);
+            match cat_file(blob.to_string(), *pretty) {
+                Ok(()) => {}
+                Err(e) => println!("{}", e),
+            }
         }
     }
     return;
