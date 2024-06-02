@@ -21,7 +21,7 @@ pub fn cat_file(
         return Err(anyhow!("[twat]: .twat repository doesn't exists"));
     }
 
-    if pretty && typ || pretty && siz || typ && siz {
+    if (siz || typ) && pretty || siz && typ {
         return Err(anyhow!("[twat]: only one option can be used at once"));
     }
 
@@ -39,15 +39,14 @@ pub fn cat_file(
     let path = Path::new(&file_path);
     let mut file =
         File::open(path).context("[twat] unable to open object file")?;
-    let md = metadata(&path).unwrap();
+    let md = metadata(path).unwrap();
     let mut buf: Vec<u8> = vec![0; md.size() as usize];
     file.read(&mut buf).context("[twat]: unable to read file")?;
 
     let u = decompress_vector(&buf)?;
-    let idx: Option<usize>;
     let uncompressed = String::from_utf8(u.clone())
         .context("[twat]: unable to convert decompressed blob to string")?;
-    idx = uncompressed.find("\0");
+    let idx: Option<usize> = uncompressed.find('\0');
     if idx.is_none() {
         return Err(anyhow!("[twat]: invalid blob file format"));
     }
@@ -102,5 +101,5 @@ pub fn cat_file(
             .context("[twat]: unable to convert decompressed blob to string")?
     );
 
-    return Ok(());
+    Ok(())
 }

@@ -26,7 +26,10 @@ fn main() {
                     path.clone().into_os_string().into_string().expect(
                         "[twat]: error converting directory OsString to String",
                     );
-                println!("Initialised empty twat repository in {:?}", dir_path);
+                println!(
+                    "Initialised empty twat repository in {:?}",
+                    dir_path + "/.twat"
+                );
             }
             Err(e) => {
                 println!("{}", e);
@@ -50,5 +53,4 @@ fn main() {
             Err(e) => println!("{}", e),
         },
     }
-    return;
 }

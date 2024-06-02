@@ -14,10 +14,10 @@ use blake2::{
 use flate2::{bufread::ZlibDecoder, write::ZlibEncoder, Compression};
 use hex::encode;
 
-pub fn hash_vector_to_hex(vec: &Vec<u8>) -> Result<String> {
+pub fn hash_vector_to_hex(vec: &[u8]) -> Result<String> {
     let mut hasher = Blake2bVar::new(20)
         .context("[twat]: unable to create blake2 hasher")?;
-    let c: &[u8] = &vec;
+    let c: &[u8] = vec;
     hasher.update(c);
     let mut hashed_buf = [0u8; 20];
     hasher
@@ -25,27 +25,27 @@ pub fn hash_vector_to_hex(vec: &Vec<u8>) -> Result<String> {
         .context("[twat]: unable to finalise blake2 hashing")?;
 
     let hex_str = encode(hashed_buf);
-    return Ok(hex_str);
+    Ok(hex_str)
 }
 
-pub fn compress_vector(vec: &Vec<u8>) -> Result<Vec<u8>> {
+pub fn compress_vector(vec: &[u8]) -> Result<Vec<u8>> {
     let mut e = ZlibEncoder::new(Vec::new(), Compression::default());
-    let u: &[u8] = &vec;
+    let u: &[u8] = vec;
     e.write_all(u)
         .context("[twat]: unable to compress vector")?;
     let compressed = e
         .finish()
         .context("[twat]: unable to get final compressed bytes")?;
-    return Ok(compressed);
+    Ok(compressed)
 }
 
-pub fn decompress_vector(vec: &Vec<u8>) -> Result<Vec<u8>> {
-    let c: &[u8] = &vec;
+pub fn decompress_vector(vec: &[u8]) -> Result<Vec<u8>> {
+    let c: &[u8] = vec;
     let mut d = ZlibDecoder::new(c);
     let mut u: Vec<u8> = Vec::new();
     d.read_to_end(&mut u)
         .context("[twat]: unable to get final decompressed bytes")?;
-    return Ok(u);
+    Ok(u)
 }
 
 pub fn set_path_755(path: &std::path::Path) -> Result<()> {
@@ -57,14 +57,14 @@ pub fn set_path_755(path: &std::path::Path) -> Result<()> {
         "[twat]: unable to set mode permissions for {:?}",
         path
     ))?;
-    return Ok(());
+    Ok(())
 }
 
-pub fn hash_to_object_path(hash: &String) -> String {
+pub fn hash_to_object_path(hash: &str) -> String {
     let dir_path = format!(
         ".twat/objects/{}{}",
-        hash.chars().nth(0).unwrap(),
-        hash.chars().nth(1).unwrap(),
+        hash.chars().next().unwrap(),
+        hash.chars().next().unwrap(),
     );
     let mut file_path_str = String::new();
     for (i, char) in hash.chars().enumerate() {
@@ -74,5 +74,5 @@ pub fn hash_to_object_path(hash: &String) -> String {
         file_path_str += &char.to_string();
     }
     let file_path = format!("{}/{}", dir_path, file_path_str);
-    return file_path;
+    file_path
 }
