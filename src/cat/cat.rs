@@ -11,9 +11,18 @@ use anyhow::{anyhow, Context, Ok, Result};
 
 use crate::utils::utils::{decompress_vector, hash_to_object_path};
 
-pub fn cat_file(hash: String, pretty: bool) -> Result<()> {
+pub fn cat_file(
+    hash: String,
+    pretty: bool,
+    typ: bool,
+    siz: bool,
+) -> Result<()> {
     if !Path::new(".twat/").exists() {
         return Err(anyhow!("[twat]: .twat repository doesn't exists"));
+    }
+
+    if pretty && typ || pretty && siz || typ && siz {
+        return Err(anyhow!("[twat]: only one option can be used at once"));
     }
 
     let file_path = hash_to_object_path(&hash);
@@ -76,6 +85,17 @@ pub fn cat_file(hash: String, pretty: bool) -> Result<()> {
         println!("{}", content);
         return Ok(());
     }
+
+    if typ {
+        println!("{}", type_str);
+        return Ok(());
+    }
+
+    if siz {
+        println!("{}", size);
+        return Ok(());
+    }
+
     println!(
         "{}",
         String::from_utf8(u.clone())

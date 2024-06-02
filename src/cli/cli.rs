@@ -24,16 +24,28 @@ pub enum Commands {
         /// Write the contents of the file to the object store
         #[arg(short, long)]
         write: bool,
+
+        /// Print the hash of the compressed object file to stdout
+        #[arg(short, long)]
+        print: bool,
     },
 
-    /// Print the contents of a blob object to standard out
-    CatBlob {
+    /// Print aspects of an object file to standard out
+    CatFile {
         /// The BLAKE2b hash of the object to be printed
-        #[arg(short, long, value_name = "BLOB_HASH", required = true)]
-        blob: String,
+        #[arg(short, long, value_name = "HASH_DIGEST", required = true)]
+        digest: String,
 
         /// Pretty print the contents of the object file
         #[arg(short, long)]
         pretty: bool,
+
+        /// Print the objects type alone
+        #[arg(short, long)]
+        r#type: bool,
+
+        /// Print the size of the content stored in the object file
+        #[arg(short, long)]
+        size: bool,
     },
 }

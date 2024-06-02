@@ -13,7 +13,7 @@ use crate::utils::utils::{
     compress_vector, hash_to_object_path, hash_vector_to_hex, set_path_755,
 };
 
-pub fn hash_file(path: String, write: bool) -> Result<()> {
+pub fn hash_file(path: String, write: bool, print: bool) -> Result<()> {
     if !Path::new(".twat/").exists() {
         return Err(anyhow!("[twat]: .twat repository doesn't exists"));
     }
@@ -61,6 +61,10 @@ pub fn hash_file(path: String, write: bool) -> Result<()> {
     perms.set_mode(0o755);
     set_permissions(path, perms)
         .context("[twat]: unable to set directory permissions")?;
+
+    if print {
+        println!("{}", hex_blob);
+    }
 
     return Ok(());
 }
