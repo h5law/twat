@@ -5,10 +5,13 @@ use std::{
     io::Read,
     os::unix::fs::MetadataExt,
     path::Path,
+    str,
+    str::FromStr,
 };
 
 use anyhow::{anyhow, Context, Ok, Result};
 
+use crate::objects::objects::ObjectTypesEnum;
 use crate::utils::utils::{decompress_vector, hash_to_object_path};
 
 pub fn cat_file(
@@ -54,19 +57,22 @@ pub fn cat_file(
     let right: &[u8];
     (left, right) = u.split_at(idx.unwrap() + 1);
 
-    let blob_arr: &[u8];
+    let type_arr: &[u8];
     let size_arr: &[u8];
-    (blob_arr, size_arr) = left.split_at(5);
-    let type_str = String::from_utf8(blob_arr.to_vec()).context(
+    (type_arr, size_arr) = left.split_at(5);
+    let type_str = String::from_utf8(type_arr.to_vec()).context(
         "[twat]: unable to convert decompressed blob type to string",
     )?;
+    match ObjectTypesEnum::from_str(&type_str.trim_end()) {
+        Err(e) => {
+            return Err(e);
+        }
+        _ => {}
+    }
+
     let size_str_ended = String::from_utf8(size_arr.to_vec()).context(
         "[twat]: unable to convert decompressed blob content size to string",
     )?;
-    if type_str != "blob " {
-        return Err(anyhow!("[twat]: unsupported object type"));
-    }
-
     let size_str: &str;
     (size_str, _) = size_str_ended.split_at(size_str_ended.len() - 1);
     let size: usize = size_str

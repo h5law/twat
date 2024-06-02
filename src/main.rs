@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
-mod cat;
 mod cli;
-mod hash;
 mod init;
+mod objects;
 mod utils;
 
 use std::env;
 
 use clap::Parser;
 
-use cat::cat::cat_file;
 use cli::cli::{Cli, Commands};
-use hash::hash::hash_file;
 use init::init::init_repo;
+use objects::cat::cat_file;
+use objects::hash::hash_file;
 
 fn main() {
     let parsed = Cli::parse();
